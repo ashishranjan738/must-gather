@@ -1,0 +1,25 @@
+#!/bin/bash
+BASE_COLLECTION_PATH="/must-gather"
+NOOBAA_COLLLECTION_PATH="${BASE_COLLECTION_PATH}/noobaa"
+
+
+noobaa_resources=()
+
+noobaa_resources+=(noobaasystem)
+noobaa_resources+=(noobaabackingstore)
+noobaa_resources+=(noobaabucketclass)
+
+# Run the Collection of NooBaa Resources using must-gather
+for resource in ${noobaa_resources[@]}; do
+    /usr/bin/openshift-must-gather inspect ${resource}
+done
+
+
+# Collect NooBaa logs using oc logs
+# get all namespaces that contain noobaasystems
+for ns in $(oc get noobaasystem --all-namespaces | grep -v NAMESPACE | awk '{print $1}')
+do
+    LOG_DIR=${NOOBAA_COLLLECTION_PATH}/${ns}
+    mkdir -p ${LOG_DIR}
+    oc -n ${ns} logs noobaa-server-0 &> ${LOG_DIR}/server.log
+done
