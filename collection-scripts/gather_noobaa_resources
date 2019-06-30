@@ -1,7 +1,14 @@
 #!/bin/bash
-BASE_COLLECTION_PATH="/must-gather"
-NOOBAA_COLLLECTION_PATH="${BASE_COLLECTION_PATH}/noobaa"
 
+# Expect base collection path as an argument
+BASE_COLLECTION_PATH=$1
+
+# Use PWD as base path if no argument is passed
+if [[ ${BASE_COLLECTION_PATH} == "" ]]; then
+    BASE_COLLECTION_PATH=$(pwd)
+fi
+
+NOOBAA_COLLLECTION_PATH="${BASE_COLLECTION_PATH}/noobaa"
 
 noobaa_resources=()
 
@@ -11,7 +18,7 @@ noobaa_resources+=(noobaabucketclass)
 
 # Run the Collection of NooBaa Resources using must-gather
 for resource in ${noobaa_resources[@]}; do
-    /usr/bin/openshift-must-gather inspect ${resource}
+    /usr/bin/openshift-must-gather inspect ${resource} --all-namespaces
 done
 
 
