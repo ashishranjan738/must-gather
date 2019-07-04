@@ -6,6 +6,10 @@ BASE_COLLECTION_PATH="/must-gather"
 # Resource List
 resources=()
 
+# collect OB/OBC resoureces
+resources+=(objectbucketclaims)
+resources+=(objectbuckets)
+
 # Add general resources to list if necessary 
 
 # Run the Collection of Resources using must-gather
