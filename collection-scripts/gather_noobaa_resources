@@ -30,6 +30,6 @@ do
     for pod in $(oc -n ${ns} get pod -l "${NOOBAA_PODS_LABEL}" | grep -v NAME | awk '{print $1}'); do
         LOG_DIR=${NOOBAA_COLLLECTION_PATH}/logs/${ns}
         mkdir -p ${LOG_DIR}
-        oc -n ${ns} logs ${pod} &> ${LOG_DIR}/${pod}.log
+        oc -n ${ns} logs --all-containers ${pod} &> ${LOG_DIR}/${pod}.log
     done
 done
