@@ -1,8 +1,6 @@
 #!/bin/bash
 BASE_COLLECTION_PATH="/must-gather"
 
-# TODO: Resources commnon to both noobaa and ceph can be collected here
-
 # Resource List
 resources=()
 

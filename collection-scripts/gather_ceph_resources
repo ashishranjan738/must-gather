@@ -28,3 +28,5 @@ done
 for ns in $(oc get cephcluster --all-namespaces --no-headers | awk '{print $1}'); do
     /usr/bin/openshift-must-gather --base-dir=${CEPH_COLLLECTION_PATH} inspect ns/${ns}
 done
+
+ceph-medic check | tee ${CEPH_COLLLECTION_PATH}/ceph-medic-report.txt
