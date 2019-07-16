@@ -14,11 +14,11 @@ resources+=(objectbuckets)
 
 # Run the Collection of Resources using must-gather
 for resource in ${resources[@]}; do
-    /usr/bin/openshift-must-gather --base-dir=${BASE_COLLECTION_PATH} inspect ${resource} --all-namespaces
+    openshift-must-gather --base-dir=${BASE_COLLECTION_PATH} inspect ${resource} --all-namespaces
 done
 
 # Call other gather scripts
-/usr/bin/gather_noobaa_resources ${BASE_COLLECTION_PATH}
-/usr/bin/gather_ceph_resources ${BASE_COLLECTION_PATH}
+gather_noobaa_resources ${BASE_COLLECTION_PATH}
+gather_ceph_resources ${BASE_COLLECTION_PATH}
 
 exit 0

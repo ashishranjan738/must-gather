@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # Expect base collection path as an argument
 BASE_COLLECTION_PATH=$1
 
@@ -10,8 +9,8 @@ fi
 
 CEPH_COLLLECTION_PATH="${BASE_COLLECTION_PATH}/ceph"
 
+# Ceph resources
 ceph_resources=()
-
 ceph_resources+=(cephblockpools)
 ceph_resources+=(cephclusters)
 ceph_resources+=(cephfilesystems)
@@ -19,12 +18,47 @@ ceph_resources+=(cephnfses)
 ceph_resources+=(cephobjectstores)
 ceph_resources+=(cephobjectstoreusers)
 
+# Ceph commands
+ceph_commands=()
+ceph_commands+=("ceph status")
+ceph_commands+=("ceph health detail")
+ceph_commands+=("ceph osd tree")
+ceph_commands+=("ceph osd stat")
+ceph_commands+=("ceph osd dump")
+ceph_commands+=("ceph mon stat")
+ceph_commands+=("ceph mon dump")
+ceph_commands+=("ceph df")
+ceph_commands+=("ceph report")
+ceph_commands+=("ceph osd df tree")
+ceph_commands+=("ceph fs dump --format json-pretty")
+ceph_commands+=("ceph fs ls")
+ceph_commands+=("ceph pg dump")
+ceph_commands+=("ceph health detail --format json-pretty")
+ceph_commands+=("ceph osd crush show-tunables")
+
+
 # Inspecting ceph related custom resources for all namespaces 
 for resource in ${ceph_resources[@]}; do
-    /usr/bin/openshift-must-gather --base-dir=${CEPH_COLLLECTION_PATH} inspect ${resource} --all-namespaces
+    openshift-must-gather --base-dir=${CEPH_COLLLECTION_PATH} inspect ${resource} --all-namespaces
 done
 
 # Inspecting the namespace where ceph-cluster is installed
 for ns in $(oc get cephcluster --all-namespaces --no-headers | awk '{print $1}'); do
-    /usr/bin/openshift-must-gather --base-dir=${CEPH_COLLLECTION_PATH} inspect ns/${ns}
+    openshift-must-gather --base-dir=${CEPH_COLLLECTION_PATH} inspect ns/${ns}
+
+    # Running ceph commands in the ceph pods
+    operator_pod_name=`oc get po -n ${ns} -l app=rook-ceph-operator -o jsonpath='{.items[*].metadata.name}'`
+    if [ ! -z ${operator_pod_name} ]; then
+        COMMAND_OUTPUT_DIR=${CEPH_COLLLECTION_PATH}/namespaces/${ns}
+        COMMAND_OUTPUT_FILE=${COMMAND_OUTPUT_DIR}/command_output.txt
+        mkdir -p ${COMMAND_OUTPUT_DIR}
+        echo "" > ${COMMAND_OUTPUT_FILE}
+
+        for ((i = 0; i < ${#ceph_commands[@]}; i++)); do
+            echo "Output of \`${ceph_commands[$i]}"\`: >> ${COMMAND_OUTPUT_FILE}
+            printf "===================================================\n\n" >> ${COMMAND_OUTPUT_FILE}
+            oc -n ${ns} exec -it ${operator_pod_name} -- ${ceph_commands[$i]} >> ${COMMAND_OUTPUT_FILE}
+            printf "\n\n" >> ${COMMAND_OUTPUT_FILE}
+        done
+    fi
 done
