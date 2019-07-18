@@ -50,19 +50,14 @@ done
 for ns in $(oc get cephcluster --all-namespaces --no-headers | awk '{print $1}'); do
     openshift-must-gather --base-dir=${CEPH_COLLLECTION_PATH} inspect ns/${ns}
 
-    # Running ceph commands in the ceph pods
+    # Running ceph commands in the rook operator pods
     operator_pod_name=`oc get po -n ${ns} -l app=rook-ceph-operator -o jsonpath='{.items[*].metadata.name}'`
     if [ ! -z ${operator_pod_name} ]; then
-        COMMAND_OUTPUT_DIR=${CEPH_COLLLECTION_PATH}/namespaces/${ns}
-        COMMAND_OUTPUT_FILE=${COMMAND_OUTPUT_DIR}/command_output.txt
+        COMMAND_OUTPUT_DIR=${CEPH_COLLLECTION_PATH}/namespaces/${ns}/must_gather_commands
         mkdir -p ${COMMAND_OUTPUT_DIR}
-        echo "" > ${COMMAND_OUTPUT_FILE}
-
         for ((i = 0; i < ${#ceph_commands[@]}; i++)); do
-            echo "Output of \`${ceph_commands[$i]}"\`: >> ${COMMAND_OUTPUT_FILE}
-            printf "===================================================\n\n" >> ${COMMAND_OUTPUT_FILE}
+            COMMAND_OUTPUT_FILE=${COMMAND_OUTPUT_DIR}/${ceph_commands[$i]// /_}
             oc -n ${ns} exec -it ${operator_pod_name} -- ${ceph_commands[$i]} >> ${COMMAND_OUTPUT_FILE}
-            printf "\n\n" >> ${COMMAND_OUTPUT_FILE}
         done
     fi
 done
