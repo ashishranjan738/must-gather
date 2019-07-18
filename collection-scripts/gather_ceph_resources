@@ -35,6 +35,10 @@ ceph_commands+=("ceph fs ls")
 ceph_commands+=("ceph pg dump")
 ceph_commands+=("ceph health detail --format json-pretty")
 ceph_commands+=("ceph osd crush show-tunables")
+ceph_commands+=("ceph osd crush dump")
+ceph_commands+=("ceph mgr dump")
+ceph_commands+=("ceph mds stat")
+ceph_commands+=("ceph versions")
 
 
 # Inspecting ceph related custom resources for all namespaces 
